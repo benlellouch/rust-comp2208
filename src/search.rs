@@ -1,0 +1,44 @@
+use crate::block_world::*;
+
+pub fn check_for_solution(node: &Blockworld) -> bool
+{
+
+
+    let mut count: u8 = 0;
+
+    for block in node.blocks.iter()
+    {
+        match block
+        {
+            Block {name: 'A', position: Pos(1,2) } => count += 1,
+            Block {name: 'B', position: Pos(1,1) } => count += 1,
+            Block {name: 'C', position: Pos(1,0) } => count += 1,
+            _ => ()
+        }
+    }
+
+    if count == 3
+    {
+        true
+    }
+    else
+    {
+        false
+    }
+
+    
+}
+
+pub fn print_solution(node: &Blockworld, stack: & mut Vec<Option<Direction>>)
+{
+
+    if node.root
+    {
+        println!("The solution is: {:?}", stack);
+    }
+    else
+    {
+        stack.push(node.move_taken.clone());
+        print_solution(node.parent.unwrap(), stack);
+    }
+}
