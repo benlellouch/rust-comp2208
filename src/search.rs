@@ -39,6 +39,6 @@ pub fn print_solution(node: &Blockworld, stack: & mut Vec<Option<Direction>>)
     else
     {
         stack.push(node.move_taken.clone());
-        print_solution(node.parent.unwrap(), stack);
+        print_solution(node.parent.unwrap(), stack);  
     }
 }

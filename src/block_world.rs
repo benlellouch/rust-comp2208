@@ -1,6 +1,6 @@
 const GRID_SIZE: i8 = 4;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Blockworld<'a>
 {
     pub root: bool,
@@ -9,7 +9,7 @@ pub struct Blockworld<'a>
     pub blocks: [Block; 3],
     depth: i32,
     pub move_taken: Option<Direction>,
-    possible_moves: Vec<Direction>,
+    pub possible_moves: Vec<Direction>,
     manhattan_distance: i32
 }
 
