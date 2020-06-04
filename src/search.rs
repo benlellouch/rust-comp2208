@@ -1,4 +1,5 @@
 use crate::block_world::*;
+use std::rc::Rc;
 
 pub fn check_for_solution(node: &Blockworld) -> bool
 {
@@ -29,7 +30,7 @@ pub fn check_for_solution(node: &Blockworld) -> bool
     
 }
 
-pub fn print_solution(node: &Blockworld, stack: & mut Vec<Option<Direction>>)
+pub fn print_solution(node: Rc<Blockworld>, mut stack: Vec<Option<Direction>>)
 {
 
     if node.root
@@ -39,6 +40,22 @@ pub fn print_solution(node: &Blockworld, stack: & mut Vec<Option<Direction>>)
     else
     {
         stack.push(node.move_taken.clone());
-        print_solution(node.parent.unwrap(), stack);  
+        print_helper(node.parent.as_ref() , stack);  
+    }
+}
+
+fn print_helper(node: Option<&Rc<Blockworld>>, mut stack: Vec<Option<Direction>>)
+{
+    let unwrapped_node = node.unwrap();
+
+    if unwrapped_node.root
+    {
+        let unwrapped_stack: Vec<Direction> = stack.into_iter().filter(|e| e.is_some()).map(|e| e.unwrap()).collect();
+        println!("The solution is: {:?}", unwrapped_stack);
+    }
+    else
+    {
+        stack.push(unwrapped_node.move_taken.clone());
+        print_helper(unwrapped_node.parent.as_ref() , stack);  
     }
 }

@@ -1,13 +1,15 @@
+use std::rc::Rc;
+
 const GRID_SIZE: i8 = 4;
 
 #[derive(Debug, Clone)]
-pub struct Blockworld<'a>
+pub struct Blockworld
 {
     pub root: bool,
-    pub parent: Option<&'a Blockworld<'a>>,
+    pub parent: Option<Rc<Blockworld>>,
     player:  Pos,
     pub blocks: [Block; 3],
-    depth: i32,
+    pub depth: i32,
     pub move_taken: Option<Direction>,
     pub possible_moves: Vec<Direction>,
     manhattan_distance: i32
@@ -32,19 +34,19 @@ pub enum Direction
     RIGHT
 }
 
-impl<'a> Blockworld<'a>
+impl Blockworld
 {
 
-    pub fn new(parent: &'a Blockworld, direction : Direction) -> Self
+    pub fn new(parent: Rc<Blockworld>, direction : Direction) -> Self
     {
         let mut new_state = Blockworld
         {
             root: false,
-            parent: Some(parent),
             player: parent.player.clone(),
             blocks: parent.blocks.clone(),
             depth: parent.depth + 1,
             possible_moves: Blockworld::calculate_possible_moves(&parent.player),
+            parent: Some(parent),
             move_taken: Some(direction),
             manhattan_distance: 0,
         };

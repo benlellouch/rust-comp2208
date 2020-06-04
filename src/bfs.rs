@@ -2,55 +2,58 @@ extern crate queues;
 use queues::*;
 use crate::search;
 use crate::block_world::*;
+use std::rc::Rc;
 
-pub struct BFS<'a>
+pub struct BFS
 {
-    fringe: Queue<Blockworld<'a>>,
-    expanded: Vec<Blockworld<'a>>,
+    fringe: Queue<Rc<Blockworld>>,
     expanded_nodes: i32,
-    root_node: Blockworld<'a> 
 }
 
-impl<'a> BFS<'a>
+impl BFS
 {
 
-    pub fn new(node: Blockworld<'a>) -> Self
+    pub fn new() -> Self
     {
         BFS
         {
             fringe: queue![],
-            expanded: Vec::new(),
             expanded_nodes: 0,
-            root_node: node
         }
     }
 
-    pub fn run(&mut self)
+    pub fn run(&mut self, root: Rc<Blockworld>)
     {
-        self.fringe.add(self.root_node.clone());
+        self.fringe.add(root);
+
+        let mut depth: i32 = 0;
+
         while self.fringe.size() > 0
         {
             let current = self.fringe.remove().unwrap();
             if search::check_for_solution(&current)
             {
-                let mut stack = Vec::new();
-                search::print_solution(&current, &mut stack);
+                let stack = Vec::new();
+                search::print_solution(current, stack);
                 return;
             }
 
-            self.expanded.push(current);
+            if current.depth > depth
+            {
+                depth = current.depth;
+                println!("Current depth: {}", depth);
+            }
 
-            self.expand(&self.expanded[self.expanded.len()-1]);
 
-
+            self.expand(current);
         }
     }
 
-    fn expand(& mut self, node: &'a Blockworld)
+    fn expand(& mut self, node: Rc<Blockworld>)
     {
         for direction in &node.possible_moves
         {
-            self.fringe.add(Blockworld::new(node, direction.clone()));
+            self.fringe.add(Rc::new(Blockworld::new(node.clone(), direction.clone())));
         }
     }
 }
