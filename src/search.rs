@@ -50,7 +50,7 @@ fn print_helper(node: Option<&Rc<Blockworld>>, mut stack: Vec<Option<Direction>>
 
     if unwrapped_node.root
     {
-        let unwrapped_stack: Vec<Direction> = stack.into_iter().filter(|e| e.is_some()).map(|e| e.unwrap()).collect();
+        let unwrapped_stack: Vec<Direction> = stack.into_iter().filter(|e| e.is_some()).map(|e| e.unwrap()).rev().collect();
         println!("The solution is: {:?}", unwrapped_stack);
     }
     else
