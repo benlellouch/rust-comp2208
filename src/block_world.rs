@@ -1,8 +1,9 @@
 use std::rc::Rc;
+use std::cmp::Ordering;
 
 const GRID_SIZE: i8 = 4;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Blockworld
 {
     pub root: bool,
@@ -12,26 +13,43 @@ pub struct Blockworld
     pub depth: i32,
     pub move_taken: Option<Direction>,
     pub possible_moves: Vec<Direction>,
-    manhattan_distance: i32
+    pub manhattan_distance: i32
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Pos(pub i8, pub i8);
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Block
 {
     pub name: char,
     pub position: Pos,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Direction
 {
     UP,
     DOWN,
     LEFT,
     RIGHT
+}
+
+impl Ord for Blockworld
+{
+    fn cmp(&self, other: &Blockworld) -> Ordering
+    {
+        other.manhattan_distance.cmp(&self.manhattan_distance)
+    }
+}
+
+impl PartialOrd for Blockworld
+{
+    fn partial_cmp(&self, other: &Blockworld) -> Option<Ordering>
+    {
+        Some(other.manhattan_distance.cmp(&self.manhattan_distance))
+    }
+
 }
 
 impl Blockworld
@@ -52,6 +70,7 @@ impl Blockworld
         };
 
         new_state.move_direction(new_state.move_taken.clone());
+        new_state.manhattan_distance = new_state.calculate_manhattan_distance();
 
         return new_state;
     }
@@ -62,7 +81,7 @@ impl Blockworld
         let block_b : Block = Block{ name: 'B', position: b_pos};
         let block_c : Block = Block{ name: 'C', position: c_pos};
 
-        Blockworld
+        let mut new_state = Blockworld
         {
             root: true,
             parent: None,
@@ -72,7 +91,11 @@ impl Blockworld
             depth: 0,
             move_taken: None,
             manhattan_distance: 0
-        }
+        };
+
+        new_state.manhattan_distance = new_state.calculate_manhattan_distance();
+
+        return new_state;
     }
 
     fn calculate_possible_moves(player: &Pos) -> Vec<Direction>
@@ -188,6 +211,42 @@ impl Blockworld
 
     }
 
+    fn calculate_manhattan_distance(&self) -> i32
+    {
+        let mut manhattan_distance = 0;
 
-    
+        // if self.root
+        // {
+        //     manhattan_distance = 0;
+        // }
+        // else
+        // {
+        //     manhattan_distance = self.parent.as_ref().unwrap().manhattan_distance;
+        // }
+
+        for block in self.blocks.iter()
+        {
+            let x = i32::from(block.position.0);
+            let y = i32::from(block.position.1);
+            match block.name
+            {
+                'A' if x == 1 && y == 2  => manhattan_distance += (x - 1).abs() + (y - 2).abs() - 1,
+                'A' => manhattan_distance += (x - 1).abs() + (y - 2).abs(),
+
+                'B' if x == 1 && y == 1 => manhattan_distance += (x - 1).abs() + (y - 1).abs() - 1,
+                'B'  => manhattan_distance += (x - 1).abs() + (y - 1).abs(),
+
+                'C' if x == 1 && y == 0 => manhattan_distance += (x - 1).abs() + (y).abs() - 1,
+                'C'  => manhattan_distance += (x - 1).abs() + (y).abs(),
+
+                _ => ()
+
+            }
+        }
+
+        manhattan_distance += self.depth;
+
+        return manhattan_distance;
+    }
+
 }
